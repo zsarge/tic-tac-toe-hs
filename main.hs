@@ -21,12 +21,12 @@ makeIndex i
   | otherwise = Nothing
 
 
-move :: Board -> Index -> Index -> Piece -> Board
-move board x y piece = newBoard
+move :: Board -> Index -> Piece -> Board
+move board index piece = newBoard
 
 main :: IO ()
 main = do 
     let board = newBoard
     let index = UnsafeMakeIndex 0
-    print $ move board index index X 
+    print $ move board index X 
 
