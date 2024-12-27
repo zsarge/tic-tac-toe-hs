@@ -27,10 +27,8 @@ toString (Player X) = "X"
 toString (Player O) = "O"
 toString (Num x) = show x
 
--- Represents a tic-tac-toe board with a fixed size of 9
 type Board = V.Vector Cell
 
--- "@9" refers to the type-level number 9
 newBoard :: Board
 newBoard = V.fromList [Num (UnsafeIndex x) | x <- [1..9]]
 
