@@ -4,6 +4,8 @@ This is just a basic project to stay fresh in Haskell.
 
 Tic-Tac-Toe was a good project to practice using Monads like `IO` and `Maybe`.
 
+All the code is in [`Main.hs`](./app/Main.hs).
+
 ## Example Inputs
 
 All inputs were run with `cabal run`.
