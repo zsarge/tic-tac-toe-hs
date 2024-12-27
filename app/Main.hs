@@ -1,13 +1,14 @@
 {-# LANGUAGE DataKinds #-}
 
-import qualified Data.Vector.Sized as V
+import qualified Data.Vector.Mutable as MV
+import qualified Data.Vector as V
+import Control.Monad.ST (runST)
 import Data.List (intercalate)
-import Data.Vector.Sized (Vector, generate, toList)
 import Data.List.Split (chunksOf)
 import GHC.TypeLits (Nat)
 import Text.Printf
 
-newtype Index = UnsafeIndex { i :: Int } deriving (Eq)
+newtype Index = UnsafeIndex { i :: Int } deriving (Eq, Ord)
 
 instance Show Index where 
     show (UnsafeIndex index) = show index
@@ -26,19 +27,21 @@ toString (Player O) = "O"
 toString (Num x) = show x
 
 -- Represents a tic-tac-toe board with a fixed size of 9
-type Board = Vector 9 Cell
+type Board = V.Vector Cell
 
 -- "@9" refers to the type-level number 9
 newBoard :: Board
-newBoard = generate @9 (\x -> Num (UnsafeIndex $ (fromIntegral x) + 1))
+newBoard = V.fromList [Num (UnsafeIndex x) | x <- [1..9]]
 
 move :: Board -> Index -> Player -> Board
-move board index player = newBoard
+move board index player = V.modify (\v -> MV.write v iValue cell) board
+  where cell = Player player
+        iValue = i index
 
 showBoard :: Board -> String
 showBoard board = formatted
   where -- create 2d array of length-1 strings
-        chunked = chunksOf 3 ((map toString . toList) board)
+        chunked = chunksOf 3 ((map toString . V.toList) board)
         -- seperate the numbers by pipes, padding with space and newline
         rows = map ((++ "\n") . (" " ++) . intercalate " | ") chunked 
         divider = "---+---+---\n"
