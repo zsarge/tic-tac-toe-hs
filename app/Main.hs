@@ -1,12 +1,19 @@
 {-# LANGUAGE DataKinds #-}
 
-import Data.Vector.Split (chunksOf) -- installed via "cabal install vector-split"
-import Data.Vector.Sized (Vector, generate) -- installed via "cabal install vector-sized"
+import qualified Data.Vector.Sized as V
+import Data.List (intercalate)
+import Data.Vector.Sized (Vector, generate, toList)
+import Data.List.Split (chunksOf)
 import GHC.TypeLits (Nat)
+import Text.Printf
 
-data Piece = X | O
+data Player = X | O deriving (Show, Eq)
+data Cell = Player Player | Num Int deriving (Show, Eq)
 
-data Cell = Piece | Num Int deriving (Show, Eq)
+toString :: Cell -> String
+toString (Player X) = "X"
+toString (Player O) = "O"
+toString (Num x) = show x
 
 -- Represents a tic-tac-toe board with a fixed size of 9
 type Board = Vector 9 Cell
@@ -17,20 +24,25 @@ newBoard = generate @9 (\x -> Num (fromIntegral x))
 
 newtype Index = UnsafeMakeIndex { i :: Int }
 makeIndex :: Int -> Maybe Index
-makeIndex i 
+makeIndex i
   | 1 <= i && i <= 9 = Just (UnsafeMakeIndex i)
   | otherwise = Nothing
 
+move :: Board -> Index -> Player -> Board
+move board index player = newBoard
 
-move :: Board -> Index -> Piece -> Board
-move board index piece = newBoard
-
--- showBoard :: Board -> String
--- showBoard b = chunksOf 3 b
+showBoard :: Board -> String
+showBoard board = formatted
+  where allData = (map toString . toList) board
+        chunked = chunksOf 3 allData
+        rows = map ((++ "\n") . (" " ++) . intercalate " | ") chunked 
+        formatted = intercalate divider rows
+        divider = "---+---+---\n"
 
 main :: IO ()
-main = do 
-    let board = newBoard
-    let index = UnsafeMakeIndex 0
-    print $ move board index X 
+main = do
+  -- let board = newBoard
+  -- let index = UnsafeMakeIndex 0
+  -- print $ move board index X
+  putStrLn $ showBoard newBoard
 

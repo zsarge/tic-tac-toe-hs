@@ -73,8 +73,8 @@ executable tictactoe
     -- Other library packages from which modules are imported.
     build-depends:
             base ^>=4.17.1.0,
-            vector-split ^>=1.0.0.3,
-            vector-sized ^>=1.6.1
+            vector-sized ^>=1.6.1,
+            split ^>=0.2.5
 
     -- Directories containing source files.
     hs-source-dirs:   app
