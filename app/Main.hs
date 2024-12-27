@@ -1,5 +1,3 @@
-{-# LANGUAGE DataKinds #-}
-
 import qualified Data.Vector.Mutable as MV
 import qualified Data.Vector as V
 import Text.Read (readMaybe)
