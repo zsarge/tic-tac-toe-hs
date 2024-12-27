@@ -18,6 +18,7 @@ makeIndex :: Int -> Maybe Index
 makeIndex i
   | 1 <= i && i <= 9 = Just (UnsafeIndex i)
   | otherwise = Nothing
+
 tryMakeIndex :: Maybe Int -> Maybe Index
 tryMakeIndex (Just n) = makeIndex n
 tryMakeIndex _ = Nothing
@@ -40,7 +41,7 @@ newBoard = V.fromList [Num (UnsafeIndex x) | x <- [1..9]]
 move :: Board -> Index -> Player -> Board
 move board index player = V.modify (\v -> MV.write v i cell) board
   where cell = Player player -- wrap
-        i = idx index -- unwrap
+        i = idx index - 1 -- unwrap + offset
 
 showBoard :: Board -> String
 showBoard board = formatted
@@ -60,17 +61,6 @@ validMoves vec = V.map extractIndex $ V.filter isNum vec
     extractIndex _         = error "Unexpected value" -- This will never happen due to the filter
 
 
--- getNumberInRange :: Int -> Int -> IO Int
--- getNumberInRange minVal maxVal = do
-  -- putStrLn $ "Enter a number between " ++ show minVal ++ " and " ++ show maxVal ++ ":"
-  -- input <- getLine
-  -- case readMaybe input of
-    -- Just n | n >= minVal && n <= maxVal -> return n
-    -- _ -> do
-      -- putStrLn "Invalid input. Please try again."
-      -- getNumberInRange minVal maxVal
-
-
 getMove :: Player -> Board -> IO Index
 getMove player board = do
   putStrLn ("Player " ++ (show player) ++ "'s turn!")
@@ -82,12 +72,20 @@ getMove player board = do
       putStrLn "Invalid input. Please try again."
       getMove player board
 
+takeTurn :: Player -> Board -> IO Board
+takeTurn player board = do
+    index <- getMove player board
+    putStrLn ("You selected " ++ (show index))
+    let nextBoard = move board index player
+    return nextBoard
+
 main :: IO ()
 main = do
   -- let board = newBoard
   -- let index = UnsafeIndex 0
   -- print $ move board index X
   putStrLn $ showBoard newBoard
-  getMove X newBoard
+  board <- takeTurn X newBoard
+  putStrLn $ showBoard $ board
   return ()
 
