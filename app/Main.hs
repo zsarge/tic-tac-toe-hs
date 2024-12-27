@@ -60,7 +60,6 @@ validMoves vec = V.map extractIndex $ V.filter isNum vec
     extractIndex (Num idx) = idx
     extractIndex _         = error "Unexpected value" -- This will never happen due to the filter
 
-
 getMove :: Player -> Board -> IO Index
 getMove player board = do
   putStrLn ("Player " ++ (show player) ++ "'s turn!")
@@ -79,13 +78,25 @@ takeTurn player board = do
     let nextBoard = move board index player
     return nextBoard
 
+playGame :: Player -> Board -> IO ()
+playGame player board 
+    | null (validMoves board) = putStrLn "Game Over!"
+    | otherwise = do
+      board' <- takeTurn player board
+      putStrLn $ showBoard $ board'
+      print board'
+      case player of
+          X -> playGame O board'
+          O -> playGame X board'
+        
+
 main :: IO ()
 main = do
   -- let board = newBoard
   -- let index = UnsafeIndex 0
   -- print $ move board index X
-  putStrLn $ showBoard newBoard
-  board <- takeTurn X newBoard
-  putStrLn $ showBoard $ board
+  let board = newBoard
+  putStrLn $ showBoard board
+  playGame X board
   return ()
 
