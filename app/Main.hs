@@ -3,11 +3,9 @@
 import qualified Data.Vector.Mutable as MV
 import qualified Data.Vector as V
 import Text.Read (readMaybe)
-import Control.Monad.ST (runST)
+import Data.Maybe (catMaybes, listToMaybe)
 import Data.List (intercalate)
 import Data.List.Split (chunksOf)
-import GHC.TypeLits (Nat)
-import Text.Printf
 
 newtype Index = UnsafeIndex { idx :: Int } deriving (Eq, Ord)
 
@@ -57,7 +55,7 @@ validMoves vec = V.map extractIndex $ V.filter isNum vec
   where
     isNum (Num _) = True
     isNum _       = False
-    extractIndex (Num idx) = idx
+    extractIndex (Num i) = i
     extractIndex _         = error "Unexpected value" -- This will never happen due to the filter
 
 getMove :: Player -> Board -> IO Index
@@ -79,10 +77,28 @@ takeTurn player board = do
   return nextBoard
 
 checkWinner :: Board -> Maybe Player
-checkWinner board = Just O -- checkHorizontal && checkVertical && checkDiagonal 
-  where checkVertical = False
-        checkHorizontal = False
-        checkDiagonal = False
+checkWinner board = firstJust $ map match patterns
+    where firstJust = listToMaybe . catMaybes
+
+          match indicies = 
+              if all (== starting) [(board V.! i) | i <- indicies] 
+              then getPlayer starting
+              else Nothing
+                 where starting = board V.! (head indicies)
+                       getPlayer (Player p) = Just p
+                       getPlayer _ = Nothing
+
+          patterns = [ [0, 1, 2] -- horizontal
+                     , [3, 4, 5]
+                     , [6, 7, 8]
+
+                     , [0, 3, 6] -- vertical
+                     , [1, 4, 7] 
+                     , [2, 5, 8]
+
+                     , [0, 4, 8] -- diagonal
+                     , [2, 4, 6]
+                     ]
 
 playGame :: Player -> Board -> IO ()
 playGame player board 
@@ -91,7 +107,6 @@ playGame player board
   | otherwise = do
       board' <- takeTurn player board
       putStrLn $ showBoard $ board'
-      print board'
       case player of
         X -> playGame O board'
         O -> playGame X board'
