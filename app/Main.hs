@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 
+import Data.Vector.Split (chunksOf) -- installed via "cabal install vector-split"
 import Data.Vector.Sized (Vector, generate) -- installed via "cabal install vector-sized"
 import GHC.TypeLits (Nat)
 
@@ -23,6 +24,9 @@ makeIndex i
 
 move :: Board -> Index -> Piece -> Board
 move board index piece = newBoard
+
+-- showBoard :: Board -> String
+-- showBoard b = chunksOf 3 b
 
 main :: IO ()
 main = do 
