@@ -73,30 +73,32 @@ getMove player board = do
 
 takeTurn :: Player -> Board -> IO Board
 takeTurn player board = do
-    index <- getMove player board
-    putStrLn ("You selected " ++ (show index))
-    let nextBoard = move board index player
-    return nextBoard
+  index <- getMove player board
+  putStrLn ("You selected " ++ (show index))
+  let nextBoard = move board index player
+  return nextBoard
+
+checkWinner :: Board -> Maybe Player
+checkWinner board = Just O -- checkHorizontal && checkVertical && checkDiagonal 
+  where checkVertical = False
+        checkHorizontal = False
+        checkDiagonal = False
 
 playGame :: Player -> Board -> IO ()
 playGame player board 
-    | null (validMoves board) = putStrLn "Game Over!"
-    | otherwise = do
+  | Just winner <- checkWinner board = putStrLn $ show winner ++ " wins!"
+  | null (validMoves board) = putStrLn "Game Over!"
+  | otherwise = do
       board' <- takeTurn player board
       putStrLn $ showBoard $ board'
       print board'
       case player of
-          X -> playGame O board'
-          O -> playGame X board'
-        
+        X -> playGame O board'
+        O -> playGame X board'
 
 main :: IO ()
 main = do
-  -- let board = newBoard
-  -- let index = UnsafeIndex 0
-  -- print $ move board index X
   let board = newBoard
   putStrLn $ showBoard board
   playGame X board
-  return ()
 
